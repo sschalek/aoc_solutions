@@ -1,0 +1,10 @@
+[package]
+name = "p2015_7"
+version = "0.1.0"
+authors = ["Steven Schalek <78252390+sschalek@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+phf = { version = "0.8.0", features = ["macros"] }
