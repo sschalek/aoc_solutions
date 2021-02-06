@@ -33,13 +33,17 @@ impl NodeOperationType {
 }
 
 #[derive(Clone)]
+enum NodeInput {
+    Immediate(u16),
+    Node(String),
+}
+
+#[derive(Clone)]
 struct NodeDescription {
     pub name: String,
     pub operation_type: NodeOperationType,
-    pub input1_immediate: Option<u16>,
-    pub input1_name: Option<String>,
-    pub input2_immediate: Option<u16>,
-    pub input2_name: Option<String>,
+    pub input1: NodeInput,
+    pub input2: Option<NodeInput>,
 }
 
 struct CircuitNode {
@@ -76,28 +80,28 @@ impl Circuit {
             }
 
             let input1: Option<u16>;
-            if current_node.description.input1_immediate.is_some() {
-                input1 = current_node.description.input1_immediate;
-            }
-            else {
-                let input1_node_name = current_node.description.input1_name.as_ref().unwrap();
-                input1 = *self.node_list[input1_node_name].value.borrow();
-                if input1.is_none() {
-                    remaining_node_names.push(input1_node_name.to_string());
-                    continue;
+            match &current_node.description.input1 {
+                NodeInput::Immediate(value) => input1 = Some(*value),
+                NodeInput::Node(name) => {
+                    input1 = *self.node_list[name].value.borrow();
+                    if input1.is_none() {
+                        remaining_node_names.push(name.to_string());
+                        continue;
+                    }    
                 }
             }
 
             let mut input2: Option<u16> = None;
-            if current_node.description.input2_immediate.is_some() {
-                input2 = current_node.description.input2_immediate;
-            }
-            else if current_node.description.input2_name.is_some() {
-                let input2_node_name = current_node.description.input2_name.as_ref().unwrap();
-                input2 = *self.node_list[input2_node_name].value.borrow();
-                if input2.is_none() {
-                    remaining_node_names.push(input2_node_name.to_string());
-                    continue;
+            if current_node.description.input2.is_some() {
+                match current_node.description.input2.as_ref().unwrap() {
+                    NodeInput::Immediate(value) => input2 = Some(*value),
+                    NodeInput::Node(name) => {
+                        input2 = *self.node_list[name].value.borrow();
+                        if input2.is_none() {
+                            remaining_node_names.push(name.to_string());
+                            continue;
+                        }    
+                    }
                 }
             }
 
@@ -136,47 +140,32 @@ fn parse_node_line(line: &str) -> NodeDescription {
     let name = node_strings[1];
     
     let operation_type: NodeOperationType;
-    let mut input1_immediate: Option<u16> = None;
-    let mut input1_name: Option<String> = None;
-    let mut input2_immediate: Option<u16> = None;
-    let mut input2_name: Option<String> = None;
+    let input1: NodeInput;
+    let mut input2: Option<NodeInput> = None;
     match node_source_strings.len() {
         1 => {
-            match node_source_strings[0].parse::<u16>() {
-                Ok(value) => {
-                    operation_type = NodeOperationType::Set;
-                    input1_immediate = Some(value);
-                },
-                Err(_) => {
-                    operation_type = NodeOperationType::Set;
-                    input1_name = Some(node_source_strings[0].to_string());
-                }
-            }
+            operation_type = NodeOperationType::Set;
+            input1 = match node_source_strings[0].parse::<u16>() {
+                Ok(value) => NodeInput::Immediate(value),
+                Err(_) => NodeInput::Node(node_source_strings[0].to_string())
+            };
         },
         2 => {
             operation_type = NodeOperationType::Not;
-            input1_name = Some(node_source_strings[1].to_string());
+            input1 = NodeInput::Node(node_source_strings[1].to_string());
         },
         3 => {
             operation_type = NODE_OPERATION_NAME_MAP[node_source_strings[1]];
 
-            match node_source_strings[0].parse::<u16>() {
-                Ok(value) => {
-                    input1_immediate = Some(value);
-                },
-                Err(_) => {
-                    input1_name = Some(node_source_strings[0].to_string());
-                }
+            input1 = match node_source_strings[0].parse::<u16>() {
+                Ok(value) => NodeInput::Immediate(value),
+                Err(_) => NodeInput::Node(node_source_strings[0].to_string())
             };
 
-            match node_source_strings[2].parse::<u16>() {
-                Ok(value) => {
-                    input2_immediate = Some(value);
-                },
-                Err(_) => {
-                    input2_name = Some(node_source_strings[2].to_string());
-                }
-            };
+            input2 = Some(match node_source_strings[2].parse::<u16>() {
+                Ok(value) => NodeInput::Immediate(value),
+                Err(_) => NodeInput::Node(node_source_strings[2].to_string())
+            });
         },
         _ => panic!("Invalid node input")
     }
@@ -184,10 +173,8 @@ fn parse_node_line(line: &str) -> NodeDescription {
     NodeDescription {
         name: name.to_string(),
         operation_type: operation_type,
-        input1_immediate: input1_immediate,
-        input1_name: input1_name,
-        input2_immediate: input2_immediate,
-        input2_name: input2_name,
+        input1: input1,
+        input2: input2,
     }
 }
 
@@ -208,10 +195,8 @@ fn main() {
     circuit.update_node(&NodeDescription {
         name: String::from("b"),
         operation_type: NodeOperationType::Set,
-        input1_immediate: Some(value_of_a),
-        input1_name: None,
-        input2_immediate: None,
-        input2_name: None,
+        input1: NodeInput::Immediate(value_of_a),
+        input2: None,
     });
     for v in circuit.get_all_node_values() {
         println!("{}: {}", v.0, v.1);
