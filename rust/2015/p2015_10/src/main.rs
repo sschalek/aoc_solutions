@@ -36,7 +36,7 @@ fn apply_look_and_say(input: String) -> String {
 }
 
 fn main() {
-    let apply_count = 40;
+    let apply_count = 50;
     let mut current_string = get_instructions_string();
     for i in 0..apply_count {
         current_string = apply_look_and_say(current_string);
