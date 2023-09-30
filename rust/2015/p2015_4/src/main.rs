@@ -1,3 +1,6 @@
+#![deny(clippy::all)]
+#![warn(clippy::pedantic)]
+
 extern crate md5;
 use md5::Digest;
 use std::convert::TryInto;
@@ -17,8 +20,8 @@ fn is_desired_md5_hash(hash: &[u8; 16], leading_zero_count: usize) -> bool {
     // Since each byte translates to two digits in the hexadecimal representation of the 16 byte slice,
     // only leading_zero_count / 2 leading bytes need to be 0. If an odd number of leading zeros is desired,
     // then only the first half of the last byte checked needs to be 0.
-    hash[0..(leading_zero_count / 2)].iter().all(|b| *b == 0) &&
-    hash[leading_zero_count / 2 + leading_zero_count % 2 - 1] & 0xF0 == 0
+    hash[0..(leading_zero_count / 2)].iter().all(|b| *b == 0)
+        && hash[leading_zero_count / 2 + leading_zero_count % 2 - 1] & 0xF0 == 0
 }
 
 // Returns the first number that results in an MD5 hash whose hexadecimal representation has leading_zero_count
@@ -36,10 +39,17 @@ fn find_first_zero_prefixed_hash_number(key: &String, leading_zero_count: usize)
 }
 
 fn main() {
-    let key = std::env::args().nth(1).expect("The key must be provided as the first command line argument.");
-    let leading_zero_count = std::env::args().nth(2).expect("The desired leading zero count must be provided as the second command line argument.");
+    let key = std::env::args()
+        .nth(1)
+        .expect("The key must be provided as the first command line argument.");
+    let leading_zero_count = std::env::args().nth(2).expect(
+        "The desired leading zero count must be provided as the second command line argument.",
+    );
 
     // Part 1 & 2: Print out the first number that results in a hash with the given leading zero count when
     // its string representation is appended to the given key string.
-    println!("{}", find_first_zero_prefixed_hash_number(&key, leading_zero_count.parse::<usize>().unwrap()));
+    println!(
+        "{}",
+        find_first_zero_prefixed_hash_number(&key, leading_zero_count.parse::<usize>().unwrap())
+    );
 }

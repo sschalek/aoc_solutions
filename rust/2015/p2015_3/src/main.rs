@@ -1,12 +1,17 @@
-use std::io::prelude::Read;
+#![deny(clippy::all)]
+#![warn(clippy::pedantic)]
+
 use std::collections::hash_map::Entry;
+use std::io::prelude::Read;
 extern crate crossbeam;
 
 // Returns the contents of the input file as a string.
 fn get_instructions_string() -> String {
     let mut input_file = std::fs::File::open("input.txt").expect("A file named \"input.txt\" with the problem data must be present in the current directory.");
     let mut instructions_string = String::new();
-    input_file.read_to_string(&mut instructions_string).expect("Unable to read input.");
+    input_file
+        .read_to_string(&mut instructions_string)
+        .expect("Unable to read input.");
     instructions_string
 }
 
@@ -18,7 +23,7 @@ fn get_movement_vector_from_char(character: char) -> (isize, isize) {
         '^' => (0, -1),
         '>' => (1, 0),
         'v' => (0, 1),
-        _ => panic!("Invalid character")
+        _ => panic!("Invalid character"),
     }
 }
 
@@ -37,15 +42,18 @@ fn get_unique_house_count(instructions_string: &str, actor_count: usize) -> usiz
         pub fn new() -> HouseVisitedState {
             HouseVisitedState {
                 unique_house_count: 1,
-                house_visitation_counts: std::collections::HashMap::new()}
+                house_visitation_counts: std::collections::HashMap::new(),
+            }
         }
     }
 
     // Set up the state that will be shared between the concurrent threads.
-    let shared_visited_state = std::sync::Arc::new(std::sync::Mutex::new(
-        HouseVisitedState::new()
-    ));
-    shared_visited_state.lock().unwrap().house_visitation_counts.insert((0, 0), 1);
+    let shared_visited_state = std::sync::Arc::new(std::sync::Mutex::new(HouseVisitedState::new()));
+    shared_visited_state
+        .lock()
+        .unwrap()
+        .house_visitation_counts
+        .insert((0, 0), 1);
 
     // Create a scope that will guarantee all threads started within it have been joined
     // and exited after the scope is exited.
@@ -55,7 +63,9 @@ fn get_unique_house_count(instructions_string: &str, actor_count: usize) -> usiz
             // Set up an iterator that will step through every nth item in the input command string,
             // corresponding to the instructions that this particular actor should process.
             let mut instructions_iterator = instructions_string.chars();
-            for _ in 0..i {instructions_iterator.next();}
+            for _ in 0..i {
+                instructions_iterator.next();
+            }
             let stepped_instructions_iterator = instructions_iterator.step_by(actor_count);
 
             // Create a reference to the shared visitation state that can be given to and owned by
@@ -66,7 +76,7 @@ fn get_unique_house_count(instructions_string: &str, actor_count: usize) -> usiz
                 // Start out at location 0, 0, and move according to each instruction returned
                 // by the instruction iterator for this actor.
                 let mut location = (0, 0);
-                for v in stepped_instructions_iterator.map(|c| get_movement_vector_from_char(c)) {
+                for v in stepped_instructions_iterator.map(get_movement_vector_from_char) {
                     location = (location.0 + v.0, location.1 + v.1);
 
                     // Update the visited count at the new location after processing the current
@@ -74,7 +84,7 @@ fn get_unique_house_count(instructions_string: &str, actor_count: usize) -> usiz
                     // mark it so that the unique house count can be incremented.
                     let mut visited_state = shared_visited_state.lock().unwrap();
                     let mut was_vacant = false;
-                    match (*visited_state).house_visitation_counts.entry(location) {
+                    match visited_state.house_visitation_counts.entry(location) {
                         Entry::Occupied(e) => *e.into_mut() += 1,
                         Entry::Vacant(e) => {
                             was_vacant = true;
@@ -83,19 +93,20 @@ fn get_unique_house_count(instructions_string: &str, actor_count: usize) -> usiz
                     }
 
                     if was_vacant {
-                        (*visited_state).unique_house_count += 1;
+                        visited_state.unique_house_count += 1;
                     }
                 }
             });
         }
-    }).unwrap();
+    })
+    .unwrap();
 
     return shared_visited_state.lock().unwrap().unique_house_count;
 }
 
 fn main() {
     let instructions_string = get_instructions_string();
-    
+
     // Part 1: Print out the number of unique houses visited when only one actor is processing
     // the instruction string.
     println!("{}", get_unique_house_count(&instructions_string, 1));

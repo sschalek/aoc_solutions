@@ -1,10 +1,15 @@
+#![deny(clippy::all)]
+#![warn(clippy::pedantic)]
+
 use std::io::prelude::Read;
 
 // Returns the contents of the input file as a string.
 fn get_instructions_string() -> String {
     let mut input_file = std::fs::File::open("input.txt").expect("A file named \"input.txt\" with the problem data must be present in the current directory.");
     let mut instructions_string = String::new();
-    input_file.read_to_string(&mut instructions_string).expect("Unable to read input.");
+    input_file
+        .read_to_string(&mut instructions_string)
+        .expect("Unable to read input.");
     instructions_string
 }
 
@@ -32,12 +37,13 @@ fn get_instructions_string() -> String {
 fn get_floor_number(instruction_str: &str) -> Result<i64, ()> {
     // Fold the given string into a single floor number, accumulating
     // the floor number and incrementing it or decrementing it for each character.
-    instruction_str.chars().try_fold(0, |floor_number, c|
-        match c {
+    instruction_str
+        .chars()
+        .try_fold(0, |floor_number, c| match c {
             '(' => Ok(floor_number + 1),
             ')' => Ok(floor_number - 1),
-            _ => Err(())
-    })
+            _ => Err(()),
+        })
 }
 
 // Given the instruction_str where '(' means go up a floor and ')' means go down
@@ -51,7 +57,7 @@ fn get_first_basement_char(instruction_str: &str) -> Result<usize, ()> {
         floor_number += match c {
             '(' => Ok(1),
             ')' => Ok(-1),
-            _ => Err(())
+            _ => Err(()),
         }?;
 
         if floor_number < 0 {
@@ -59,7 +65,7 @@ fn get_first_basement_char(instruction_str: &str) -> Result<usize, ()> {
         }
     }
 
-    return Err(());
+    Err(())
 }
 
 fn main() {
@@ -67,7 +73,7 @@ fn main() {
 
     // Part 1: Print out the resulting floor number after following the instructions.
     println!("{}", get_floor_number(&instruction_str).unwrap());
-    
+
     // Part 2: Print out the index of the first instruction character to result in a basement level
     // being reached.
     println!("{}", get_first_basement_char(&instruction_str).unwrap());
