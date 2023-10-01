@@ -1,16 +1,4 @@
-use std::io::BufRead;
-
-fn input_lines() -> impl Iterator<Item=String> {
-    let input_file = std::fs::File::open("input.txt").expect("A file named \"input.txt\" with the problem data must be present in the current directory.");
-
-    // Create a line-based iterator for the file contents.
-    let reader = std::io::BufReader::new(input_file);
-    reader.lines().map(|l| l.unwrap())
-}
-
 fn parse_list_string_literal(list_string_literal: &str) -> String {
-    let mut parsed_string = String::new();
-
     #[derive(Copy, Clone)]
     enum ParserMode {
         OutsideString,
@@ -18,6 +6,8 @@ fn parse_list_string_literal(list_string_literal: &str) -> String {
         ProcessingEscape,
         ProcessingAsciiHexEscape,
     }
+
+    let mut parsed_string = String::new();
 
     let mut mode = ParserMode::OutsideString;
     let mut ascii_code = String::new();
@@ -28,31 +18,27 @@ fn parse_list_string_literal(list_string_literal: &str) -> String {
                     '"' => mode = ParserMode::InsideString,
                     _ => panic!(),
                 };
-            },
+            }
             ParserMode::InsideString => {
                 match c {
                     '\\' => mode = ParserMode::ProcessingEscape,
                     '"' => mode = ParserMode::OutsideString,
                     _ => parsed_string.push(c),
                 };
-            },
+            }
             ParserMode::ProcessingEscape => {
                 match c {
-                    '\\' => {
+                    '\\' | '"' => {
                         parsed_string.push(c);
                         mode = ParserMode::InsideString;
-                    },
-                    '"' => {
-                        parsed_string.push(c);
-                        mode = ParserMode::InsideString;
-                    },
+                    }
                     'x' => {
                         ascii_code = String::new();
                         mode = ParserMode::ProcessingAsciiHexEscape;
-                    },
+                    }
                     _ => panic!(),
                 };
-            },
+            }
             ParserMode::ProcessingAsciiHexEscape => {
                 if c.is_ascii_hexdigit() {
                     ascii_code.push(c);
@@ -62,11 +48,10 @@ fn parse_list_string_literal(list_string_literal: &str) -> String {
                         parsed_string.push('X');
                         mode = ParserMode::InsideString;
                     }
-                }
-                else {
+                } else {
                     panic!();
                 }
-            },
+            }
         }
     }
     parsed_string
@@ -79,11 +64,9 @@ fn encode_list_string(list_string: &str) -> String {
     for c in list_string.chars() {
         if c == '\\' {
             encoded_string.push_str("\\\\");
-        }
-        else if c == '"' {
+        } else if c == '"' {
             encoded_string.push_str("\\\"");
-        }
-        else {
+        } else {
             encoded_string.push(c);
         }
     }
@@ -91,20 +74,29 @@ fn encode_list_string(list_string: &str) -> String {
     encoded_string
 }
 
-fn main() {
-    let mut total_char_diff:isize = 0;
-    for l in input_lines() {
+fn solve(input: &str, _log_fn: Option<fn(&str)>) -> (String, String) {
+    // Part 1: Find the total number of characters of code for string literals minus the total number of characters in memory
+    // for the values of the strings in the input.
+    let mut total_char_diff: isize = 0;
+    for l in input.lines() {
         total_char_diff += l.len() as isize;
-        let parsed_string = parse_list_string_literal(&l);
+        let parsed_string = parse_list_string_literal(l);
         total_char_diff -= parsed_string.len() as isize;
     }
-    println!("{}", total_char_diff);
+    let part1_result = total_char_diff.to_string();
 
+    // Part 2: Find the total number of characters of code for the values of the strings in the input minus the total number of
+    // characters in memory for the strings themselves.
     total_char_diff = 0;
-    for l in input_lines() {
-        let encoded_string = encode_list_string(&l);
+    for l in input.lines() {
+        let encoded_string = encode_list_string(l);
         total_char_diff += encoded_string.len() as isize;
         total_char_diff -= l.len() as isize;
     }
-    println!("{}", total_char_diff);
+    let part2_result = total_char_diff.to_string();
+
+    (part1_result, part2_result)
 }
+
+#[linkme::distributed_slice(crate::SOLUTIONS)]
+static SOLUTION: crate::Solution = crate::Solution::new(2015, 8, solve);

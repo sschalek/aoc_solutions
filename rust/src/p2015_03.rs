@@ -1,19 +1,4 @@
-#![deny(clippy::all)]
-#![warn(clippy::pedantic)]
-
 use std::collections::hash_map::Entry;
-use std::io::prelude::Read;
-extern crate crossbeam;
-
-// Returns the contents of the input file as a string.
-fn get_instructions_string() -> String {
-    let mut input_file = std::fs::File::open("input.txt").expect("A file named \"input.txt\" with the problem data must be present in the current directory.");
-    let mut instructions_string = String::new();
-    input_file
-        .read_to_string(&mut instructions_string)
-        .expect("Unable to read input.");
-    instructions_string
-}
 
 // Given a character from the input instructions, returns a tuple representing a vector indicating
 // which movement direction the instruction character indicates.
@@ -104,14 +89,20 @@ fn get_unique_house_count(instructions_string: &str, actor_count: usize) -> usiz
     return shared_visited_state.lock().unwrap().unique_house_count;
 }
 
-fn main() {
-    let instructions_string = get_instructions_string();
-
-    // Part 1: Print out the number of unique houses visited when only one actor is processing
+fn solve(input: &str, _log_fn: Option<fn(&str)>) -> (String, String) {
+    // Part 1: Find the number of unique houses visited when only one actor is processing
     // the instruction string.
-    println!("{}", get_unique_house_count(&instructions_string, 1));
+    let unique_house_count = get_unique_house_count(input, 1);
 
-    // Part 2: Print out the number of unique houses visited when two actors are processing
+    // Part 2: Find the number of unique houses visited when two actors are processing
     // the instruction string.
-    println!("{}", get_unique_house_count(&instructions_string, 2));
+    let unique_house_count_two_actors = get_unique_house_count(input, 2);
+
+    (
+        unique_house_count.to_string(),
+        unique_house_count_two_actors.to_string(),
+    )
 }
+
+#[linkme::distributed_slice(crate::SOLUTIONS)]
+static SOLUTION: crate::Solution = crate::Solution::new(2015, 3, solve);

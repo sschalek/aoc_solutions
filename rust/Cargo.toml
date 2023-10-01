@@ -1,0 +1,13 @@
+[package]
+name = "aoc_rust"
+version = "0.1.0"
+authors = ["Steven Schalek <78252390+sschalek@users.noreply.github.com>"]
+edition = "2021"
+
+[dependencies]
+crossbeam = "0.8.2"
+linkme = "0.3.15"
+md-5 = "0.10.6"
+phf = { version = "0.11.2", features = ["macros"] }
+rayon = "1.8.0"
+serde_json = "1.0.107"

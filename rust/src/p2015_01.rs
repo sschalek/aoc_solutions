@@ -1,18 +1,3 @@
-#![deny(clippy::all)]
-#![warn(clippy::pedantic)]
-
-use std::io::prelude::Read;
-
-// Returns the contents of the input file as a string.
-fn get_instructions_string() -> String {
-    let mut input_file = std::fs::File::open("input.txt").expect("A file named \"input.txt\" with the problem data must be present in the current directory.");
-    let mut instructions_string = String::new();
-    input_file
-        .read_to_string(&mut instructions_string)
-        .expect("Unable to read input.");
-    instructions_string
-}
-
 // Started with this solution, but the fold/reduce-based solution below seems to express
 // things more clearly.
 // fn get_floor_old(instruction_str:&str) -> Result<i64, ()> {
@@ -37,13 +22,11 @@ fn get_instructions_string() -> String {
 fn get_floor_number(instruction_str: &str) -> Result<i64, ()> {
     // Fold the given string into a single floor number, accumulating
     // the floor number and incrementing it or decrementing it for each character.
-    instruction_str
-        .chars()
-        .try_fold(0, |floor_number, c| match c {
-            '(' => Ok(floor_number + 1),
-            ')' => Ok(floor_number - 1),
-            _ => Err(()),
-        })
+    instruction_str.chars().try_fold(0, |floor_number, c| match c {
+        '(' => Ok(floor_number + 1),
+        ')' => Ok(floor_number - 1),
+        _ => Err(()),
+    })
 }
 
 // Given the instruction_str where '(' means go up a floor and ')' means go down
@@ -68,13 +51,17 @@ fn get_first_basement_char(instruction_str: &str) -> Result<usize, ()> {
     Err(())
 }
 
-fn main() {
-    let instruction_str = get_instructions_string();
+fn solve(input: &str, _log_fn: Option<fn(&str)>) -> (String, String) {
+    // Part 1: Find the resulting floor number after following the instructions.
+    let part1_result = get_floor_number(input).unwrap();
 
-    // Part 1: Print out the resulting floor number after following the instructions.
-    println!("{}", get_floor_number(&instruction_str).unwrap());
-
-    // Part 2: Print out the index of the first instruction character to result in a basement level
+    // Part 2: Find the index of the first instruction character to result in a basement level
     // being reached.
-    println!("{}", get_first_basement_char(&instruction_str).unwrap());
+    let part2_result = get_first_basement_char(input).unwrap();
+
+    (part1_result.to_string(), part2_result.to_string())
 }
+
+// Register the solution via linkme.
+#[linkme::distributed_slice(crate::SOLUTIONS)]
+static SOLUTION: crate::Solution = crate::Solution::new(2015, 1, solve);

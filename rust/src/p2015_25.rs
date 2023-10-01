@@ -1,17 +1,6 @@
-#![deny(clippy::all)]
-#![warn(clippy::pedantic)]
-#![allow(clippy::unreadable_literal, clippy::cast_sign_loss)]
-
-use std::io::Read;
-
-// Get the row and column to find the code for from the input file.
-fn get_input_coordinate() -> (i32, i32) {
-    let mut input_file = std::fs::File::open("input.txt").expect("A file named \"input.txt\" with the problem data must be present in the current directory.");
-    let mut input_string = String::new();
-    input_file
-        .read_to_string(&mut input_string)
-        .expect("Unable to read input.");
-    let mut input_lines = input_string.lines();
+// Get the row and column to find the code for from the given string.
+fn parse_coordinate(coordinate_string: &str) -> (i32, i32) {
+    let mut input_lines = coordinate_string.lines();
     let row = input_lines.next().unwrap().parse::<i32>().unwrap();
     let col = input_lines.next().unwrap().parse::<i32>().unwrap();
     (row, col)
@@ -48,13 +37,22 @@ fn get_code_sequence_iterator() -> impl Iterator<Item = i64> {
 // Get the code at the given coordinate in the table of codes.
 fn get_code((row, col): (i32, i32)) -> i64 {
     let index = get_index_from_coordinate((row, col));
-    get_code_sequence_iterator()
-        .nth(index as usize - 1)
-        .unwrap()
+    get_code_sequence_iterator().nth(index as usize - 1).unwrap()
 }
 
-fn main() {
-    let input_coordinate = get_input_coordinate();
+fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
+    // Part 1: Find the code at the given coordinate in the table of codes.
+    let input_coordinate = parse_coordinate(input);
     let code = get_code(input_coordinate);
-    println!("Code for {input_coordinate:?}: {code}");
+
+    if let Some(log_fn) = log_fn {
+        log_fn(&format!(
+            "Code for {input_coordinate:?}: {code}"
+        ));
+    }
+
+    (code.to_string(), String::new())
 }
+
+#[linkme::distributed_slice(crate::SOLUTIONS)]
+static SOLUTION: crate::Solution = crate::Solution::new(2015, 25, solve);

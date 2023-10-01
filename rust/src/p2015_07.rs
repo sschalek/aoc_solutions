@@ -1,14 +1,4 @@
-use std::io::BufRead;
 use phf::phf_map;
-
-// Returns an iterator that iterates through each line of the input file.
-fn input_lines() -> impl Iterator<Item=String> {
-    let input_file = std::fs::File::open("input.txt").expect("A file named \"input.txt\" with the problem data must be present in the current directory.");
-
-    // Create a line-based iterator for the file contents.
-    let reader = std::io::BufReader::new(input_file);
-    reader.lines().map(|l| l.unwrap())
-}
 
 // Represents the different operations a node in the circuit can perform.
 #[derive(Copy, Clone)]
@@ -25,7 +15,7 @@ impl NodeOperation {
     // Applies this operation to the given inputs and returns the result.
     // The second input parameter is optional, because not all operations
     // take two inputs.
-    pub fn apply(&self, i1: u16, i2: Option<u16>) -> u16 {
+    pub fn apply(self, i1: u16, i2: Option<u16>) -> u16 {
         match self {
             Self::Set => i1,
             Self::And => i1 & i2.unwrap(),
@@ -69,14 +59,21 @@ struct Circuit {
 
 impl Circuit {
     // Creates a new circuit from the given node descriptions.
-    pub fn new<I>(node_descriptions: I) -> Self where
-        I: Iterator<Item=NodeDescription> {
+    pub fn new<I>(node_descriptions: I) -> Self
+    where
+        I: Iterator<Item = NodeDescription>,
+    {
         Circuit {
-            node_list: node_descriptions.map(|d| {
-                let node_name = d.name.clone();
-                let node = CircuitNode {description: d, value: std::cell::RefCell::new(None)};
-                (node_name, node)
-            }).collect(),
+            node_list: node_descriptions
+                .map(|d| {
+                    let node_name = d.name.clone();
+                    let node = CircuitNode {
+                        description: d,
+                        value: std::cell::RefCell::new(None),
+                    };
+                    (node_name, node)
+                })
+                .collect(),
         }
     }
 
@@ -90,11 +87,11 @@ impl Circuit {
         // nodes are determined.
         let mut remaining_node_names: Vec<String> = Vec::new();
         remaining_node_names.push(node_name.to_string());
-        while remaining_node_names.len() > 0 {
+        while !remaining_node_names.is_empty() {
             // Get the node corresponding to the name on top of the stack.
             let current_node_name = remaining_node_names.last().unwrap();
             let current_node = &self.node_list[current_node_name];
-            
+
             // If the current node already has a value, pop it off the stack and continue;
             // it doesn't need to be processed any further.
             if current_node.value.borrow().is_some() {
@@ -116,7 +113,7 @@ impl Circuit {
                     if input1.is_none() {
                         remaining_node_names.push(name.to_string());
                         continue;
-                    }    
+                    }
                 }
             }
 
@@ -131,7 +128,7 @@ impl Circuit {
                         if input2.is_none() {
                             remaining_node_names.push(name.to_string());
                             continue;
-                        }    
+                        }
                     }
                 }
             }
@@ -149,13 +146,19 @@ impl Circuit {
     // Returns the output values of all nodes in the circuit in the form of a mapping from
     // node name to node output value.
     pub fn get_all_node_values(&self) -> std::collections::HashMap<String, u16> {
-        self.node_list.keys().map(|name| (name.clone(), self.get_node_value(name))).collect()
+        self.node_list
+            .keys()
+            .map(|name| (name.clone(), self.get_node_value(name)))
+            .collect()
     }
 
     // Updates the circuit with the given node description. If a node with the same name as the given node already
     // exists, it will be replaced.
     pub fn update_node(&mut self, new_node_description: &NodeDescription) {
-        *self.node_list.get_mut(&new_node_description.name).unwrap() = CircuitNode { description: new_node_description.clone(), value: std::cell::RefCell::new(None) };
+        *self.node_list.get_mut(&new_node_description.name).unwrap() = CircuitNode {
+            description: new_node_description.clone(),
+            value: std::cell::RefCell::new(None),
+        };
 
         for n in self.node_list.values() {
             *n.value.borrow_mut() = None;
@@ -175,10 +178,10 @@ const NODE_OPERATION_NAME_MAP: phf::Map<&str, NodeOperation> = phf_map! {
 // Given a string describing a node, parses it and returns a corresponding node description.
 fn parse_node_line(line: &str) -> NodeDescription {
     let node_strings: Vec<&str> = line.split(" -> ").collect();
-    let node_source_strings: Vec<&str> = node_strings[0].split(" ").collect();
-    
+    let node_source_strings: Vec<&str> = node_strings[0].split(' ').collect();
+
     let name = node_strings[1];
-    
+
     let operation: NodeOperation;
     let input1: NodeInput;
     let mut input2: Option<NodeInput> = None;
@@ -187,58 +190,66 @@ fn parse_node_line(line: &str) -> NodeDescription {
             operation = NodeOperation::Set;
             input1 = match node_source_strings[0].parse::<u16>() {
                 Ok(value) => NodeInput::Immediate(value),
-                Err(_) => NodeInput::Node(node_source_strings[0].to_string())
+                Err(_) => NodeInput::Node(node_source_strings[0].to_string()),
             };
-        },
+        }
         2 => {
             operation = NodeOperation::Not;
             input1 = NodeInput::Node(node_source_strings[1].to_string());
-        },
+        }
         3 => {
             operation = NODE_OPERATION_NAME_MAP[node_source_strings[1]];
 
             input1 = match node_source_strings[0].parse::<u16>() {
                 Ok(value) => NodeInput::Immediate(value),
-                Err(_) => NodeInput::Node(node_source_strings[0].to_string())
+                Err(_) => NodeInput::Node(node_source_strings[0].to_string()),
             };
 
             input2 = Some(match node_source_strings[2].parse::<u16>() {
                 Ok(value) => NodeInput::Immediate(value),
-                Err(_) => NodeInput::Node(node_source_strings[2].to_string())
+                Err(_) => NodeInput::Node(node_source_strings[2].to_string()),
             });
-        },
-        _ => panic!("Invalid node input")
+        }
+        _ => panic!("Invalid node input"),
     }
 
     NodeDescription {
-        name: name.to_string(),
-        operation: operation,
-        input1: input1,
-        input2: input2,
+        name: name.to_owned(),
+        operation,
+        input1,
+        input2,
     }
 }
 
 // Parses the circuit node descriptions specified by the given input lines and returns
 // an iterator over NodeDescriptions.
-fn parse_node_list<I>(input_lines: I) -> impl Iterator<Item=NodeDescription> where
-    I: Iterator<Item=String> {
-    input_lines.map(|l| parse_node_line(&l))
+fn parse_node_list<'a, I>(input_lines: I) -> impl Iterator<Item = NodeDescription> + 'a
+where
+    I: IntoIterator<Item = &'a str>,
+    <I as IntoIterator>::IntoIter: 'a,
+{
+    input_lines.into_iter().map(parse_node_line)
 }
 
-fn main() {
+fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
     // Create a circuit from the node list specified by the input.
-    let mut circuit = Circuit::new(parse_node_list(input_lines()));
+    let mut circuit = Circuit::new(parse_node_list(&mut input.lines()));
 
     // Print out the status of each node in the circuit.
     for v in circuit.get_all_node_values() {
-        println!("{}: {}", v.0, v.1);
+        if let Some(log_fn) = log_fn {
+            log_fn(&format!("{}: {}", v.0, v.1));
+        }
     }
 
-    // Part 1: Print out the value of node "a" in the circuit specified by the input.
+    // Part 1: Find the value of node "a" in the circuit specified by the input.
     let value_of_a = circuit.get_node_value("a");
-    println!("------------------------------");
-    println!("{}", value_of_a);
-    println!("------------------------------");
+    if let Some(log_fn) = log_fn {
+        log_fn("------------------------------");
+        log_fn(&format!("{value_of_a}"));
+        log_fn("------------------------------");
+    }
+    let part1_result = value_of_a;
 
     // Update the circuit with a new node "b".
     circuit.update_node(&NodeDescription {
@@ -250,11 +261,21 @@ fn main() {
 
     // Print out the status of each node in the circuit.
     for v in circuit.get_all_node_values() {
-        println!("{}: {}", v.0, v.1);
+        if let Some(log_fn) = log_fn {
+            log_fn(&format!("{}: {}", v.0, v.1));
+        }
     }
 
-    // Part 2: Print out the value of node "a" in the modified circuit.
-    println!("------------------------------");
-    println!("{}", circuit.get_node_value("a"));
-    println!("------------------------------");
+    // Part 2: Find the value of node "a" in the modified circuit.
+    if let Some(log_fn) = log_fn {
+        log_fn("------------------------------");
+        log_fn(&format!("{}", circuit.get_node_value("a")));
+        log_fn("------------------------------");
+    }
+    let part2_result = circuit.get_node_value("a");
+
+    (part1_result.to_string(), part2_result.to_string())
 }
+
+#[linkme::distributed_slice(crate::SOLUTIONS)]
+static SOLUTION: crate::Solution = crate::Solution::new(2015, 7, solve);
