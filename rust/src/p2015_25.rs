@@ -1,9 +1,11 @@
 // Get the row and column to find the code for from the given string.
 fn parse_coordinate(coordinate_string: &str) -> (i32, i32) {
-    let mut input_lines = coordinate_string.lines();
-    let row = input_lines.next().unwrap().parse::<i32>().unwrap();
-    let col = input_lines.next().unwrap().parse::<i32>().unwrap();
-    (row, col)
+    let integers = coordinate_string
+        .split(|c: char| !c.is_numeric())
+        .filter_map(|s| s.parse::<i32>().ok())
+        .collect::<Vec<_>>();
+    assert!(integers.len() == 2, "Unexpected coordinate string format");
+    (integers[0], integers[1])
 }
 
 // 1 + 2 + 3 + ... + n = n * (n + 1) / 2
@@ -46,9 +48,7 @@ fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
     let code = get_code(input_coordinate);
 
     if let Some(log_fn) = log_fn {
-        log_fn(&format!(
-            "Code for {input_coordinate:?}: {code}"
-        ));
+        log_fn(&format!("Code for {input_coordinate:?}: {code}"));
     }
 
     (code.to_string(), String::new())

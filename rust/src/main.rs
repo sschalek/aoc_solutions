@@ -21,7 +21,7 @@ mod p2015_07;
 mod p2015_08;
 //mod p2015_09;
 mod p2015_10;
-//mod p2015_11;
+mod p2015_11;
 mod p2015_12;
 //mod p2015_13;
 //mod p2015_14;
@@ -175,7 +175,7 @@ fn main() {
             if let Some(result) = result {
                 println!(
                     "{:>3}  {:>12}  {:>12}  {:>4}.{:03}_{:03}s",
-                    day,
+                    day + 1,
                     result.part1_result,
                     result.part2_result,
                     result.duration.as_secs(),
@@ -191,7 +191,7 @@ fn main() {
 
         println!("---  ------------  ------------     ----------");
         println!(
-            "    {:>12}  {:>12}  {:>4}.{:03}_{:03}s",
+            "     {:>12}  {:>12}  {:>4}.{:03}_{:03}s",
             "-",
             "-",
             total_duration.as_secs(),
