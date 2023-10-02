@@ -24,7 +24,7 @@ mod p2015_10;
 mod p2015_11;
 mod p2015_12;
 //mod p2015_13;
-//mod p2015_14;
+mod p2015_14;
 //mod p2015_15;
 //mod p2015_16;
 //mod p2015_17;
@@ -115,11 +115,11 @@ fn generate_solution_set(year: Option<i32>, day: Option<i32>) -> HashMap<i32, Ve
 }
 
 fn run_solutions(
-    year: Option<i32>,
-    day: Option<i32>,
+    requested_year: Option<i32>,
+    requested_day: Option<i32>,
     log_fn: Option<fn(&str)>,
 ) -> HashMap<i32, Vec<Option<SolutionRunResult>>> {
-    let solution_map = generate_solution_set(year, day);
+    let solution_map = generate_solution_set(requested_year, requested_day);
     let mut result_map = HashMap::new();
     for (year, solutions) in solution_map {
         let mut result_vec = Vec::new();

@@ -1,3 +1,4 @@
+// This struct implements an iterator over valid passwords, given a starting password and a set of invalid characters.
 struct PasswordIterator {
     password: Vec<char>,
     invalid_characters: Vec<char>,
@@ -11,6 +12,8 @@ impl PasswordIterator {
         }
     }
 
+    // Given a character, return the next valid password character and whether a
+    // carry/wraparound occurred.
     fn get_next_character(&mut self, c: char) -> (char, bool) {
         let mut next_character = c;
         let mut carry = false;
@@ -30,37 +33,19 @@ impl PasswordIterator {
     }
 }
 
-impl Iterator for PasswordIterator {
-    type Item = String;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let mut password = self.password.clone();
-        let mut i = password.len() - 1;
-        loop {
-            let (next_character, carry) = self.get_next_character(password[i]);
-            password[i] = next_character;
-            if !carry {
-                break;
-            }
-
-            if i == 0 {
-                return None;
-            }
-            i -= 1;
-        }
-        self.password = password;
-        Some(self.password.iter().collect())
-    }
-}
-
-fn is_valid_password(password: &str, invalid_characters: &[char]) -> bool {
+// Returns true if the given password is valid according to the rule set and false otherwise.
+// In addition to the built-in rule set, the password may not contain any of the given invalid characters.
+fn is_valid_password(password: &[char], invalid_characters: &[char]) -> bool {
     let mut has_increasing_straight = false;
     let mut has_two_pairs = false;
 
+    // Iterate over the characters in the given password, keeping track of the last two characters seen.
     let mut last_char = '\0';
     let mut last_last_char = '\0';
     let mut first_pair_char = '\0';
-    for (i, c) in password.char_indices() {
+    for (i, c_ref) in password.iter().enumerate() {
+        let c = *c_ref;
+
         // Check whether the given string contains any invalid characters.
         if invalid_characters.contains(&c) {
             return false;
@@ -87,19 +72,59 @@ fn is_valid_password(password: &str, invalid_characters: &[char]) -> bool {
     has_increasing_straight && has_two_pairs
 }
 
+impl Iterator for PasswordIterator {
+    type Item = String;
+
+    // Returns the next password after the current password, skipping any
+    // passwords that contain invalid characters.
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut password = self.password.clone();
+
+        loop {
+            // Increment the least significant character until it is valid.
+            // If a carry occurs, increment the next most significant character.
+            // Continue until no carry occurs or a carry occurs on the most significant character.
+            let mut i = password.len() - 1;
+            loop {
+                // Get the next valid password character and whether a carry occurred.
+                // Update the current password character to the next valid password character,
+                // and check whether the next most significant character should be incremented.
+                //
+                let (next_character, carry) = self.get_next_character(password[i]);
+                password[i] = next_character;
+                if !carry {
+                    break;
+                }
+
+                // If a carry occurred on the most significant character, return None,
+                // since there is no next valid password.
+                if i == 0 {
+                    return None;
+                }
+                // Otherwise, continue to the next most significant character.
+                i -= 1;
+            }
+
+            // If the current password is valid, return it.
+            if is_valid_password(&password, &self.invalid_characters) {
+                break;
+            }
+        }
+
+        self.password = password;
+        Some(self.password.iter().collect())
+    }
+}
+
 fn solve(input: &str, _log_fn: Option<fn(&str)>) -> (String, String) {
     const INVALID_CHARACTERS: [char; 3] = ['i', 'o', 'l'];
 
     // Part 1: Find the next valid password after the input password.
     let mut password_iterator = PasswordIterator::new(input, &INVALID_CHARACTERS);
-    let part1_result = password_iterator
-        .find(|p| is_valid_password(p, &INVALID_CHARACTERS))
-        .unwrap();
+    let part1_result = password_iterator.next().unwrap();
 
     // Part 2: Find the next valid password after the part 1 result.
-    let part2_result = password_iterator
-        .find(|p| is_valid_password(p, &INVALID_CHARACTERS))
-        .unwrap();
+    let part2_result = password_iterator.next().unwrap();
 
     (part1_result, part2_result)
 }
