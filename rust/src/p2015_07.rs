@@ -67,6 +67,7 @@ impl Circuit {
         I: Iterator<Item = NodeDescription>,
     {
         Circuit {
+            // Create circuit nodes from the given node descriptions.
             node_list: node_descriptions
                 .map(|d| {
                     let node_name = d.name.clone();
@@ -180,34 +181,50 @@ const NODE_OPERATION_NAME_MAP: phf::Map<&str, NodeOperation> = phf_map! {
 
 // Given a string describing a node, parses it and returns a corresponding node description.
 fn parse_node_line(line: &str) -> NodeDescription {
+    // Parse the node name and the node source string from the input line.
+    // Node description lines are of the form:
+    //     <node source> -> <node name>
+    // where <node source> can include an operation and one or two inputs, and <node name> is the name of the node.
     let node_strings: Vec<&str> = line.split(" -> ").collect();
     let node_source_strings: Vec<&str> = node_strings[0].split(' ').collect();
 
+    // Store the name of the node being parsed.
     let name = node_strings[1];
 
+    // Parse the node source string and determine the node operation and inputs.
     let operation: NodeOperation;
     let input1: NodeInput;
     let mut input2: Option<NodeInput> = None;
     match node_source_strings.len() {
+        // If the node source string has one element, it must be a set operation.
         1 => {
             operation = NodeOperation::Set;
+            // If the node source string is an immediate value, use it as the input.
+            // Otherwise, use it as the name of the node to use as the input.
             input1 = match node_source_strings[0].parse::<u16>() {
                 Ok(value) => NodeInput::Immediate(value),
                 Err(_) => NodeInput::Node(node_source_strings[0].to_string()),
             };
         }
+        // If the node source string has two elements, it must be a not operation.
         2 => {
             operation = NodeOperation::Not;
             input1 = NodeInput::Node(node_source_strings[1].to_string());
         }
+        // If the node source string has three elements, it must be a binary operation.
         3 => {
+            // Determine the operation and inputs from the node source string.
             operation = NODE_OPERATION_NAME_MAP[node_source_strings[1]];
 
+            // If the first input is an immediate value, use it as the input.
+            // Otherwise, use it as the name of the node to use as the input.
             input1 = match node_source_strings[0].parse::<u16>() {
                 Ok(value) => NodeInput::Immediate(value),
                 Err(_) => NodeInput::Node(node_source_strings[0].to_string()),
             };
 
+            // If the second input is an immediate value, use it as the input.
+            // Otherwise, use it as the name of the node to use as the input.
             input2 = Some(match node_source_strings[2].parse::<u16>() {
                 Ok(value) => NodeInput::Immediate(value),
                 Err(_) => NodeInput::Node(node_source_strings[2].to_string()),

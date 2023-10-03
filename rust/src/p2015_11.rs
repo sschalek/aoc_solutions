@@ -8,6 +8,7 @@ struct PasswordIterator {
 }
 
 impl PasswordIterator {
+    // Creates a new PasswordIterator instance with the given starting password and invalid characters.
     pub fn new(password: &str, invalid_characters: &[char]) -> Self {
         Self {
             password: password.chars().collect(),
@@ -75,6 +76,7 @@ fn is_valid_password(password: &[char], invalid_characters: &[char]) -> bool {
     has_increasing_straight && has_two_pairs
 }
 
+// Implement the standard Iterator trait for PasswordIterator.
 impl Iterator for PasswordIterator {
     type Item = String;
 
@@ -92,7 +94,6 @@ impl Iterator for PasswordIterator {
                 // Get the next valid password character and whether a carry occurred.
                 // Update the current password character to the next valid password character,
                 // and check whether the next most significant character should be incremented.
-                //
                 let (next_character, carry) = self.get_next_character(password[i]);
                 password[i] = next_character;
                 if !carry {

@@ -15,6 +15,8 @@ fn get_movement_vector_from_char(character: char) -> (isize, isize) {
     }
 }
 
+// Returns the number of unique houses visited by the given number of actor(s) processing
+// the given instructions.
 fn get_unique_house_count(instructions_string: &str, actor_count: usize) -> usize {
     // This implementation processes the multiple actors moving around between the houses
     // in parallel. This is probably not more efficient given the overhead, but

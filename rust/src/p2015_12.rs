@@ -3,6 +3,8 @@
 
 use serde_json::Value;
 
+// Given a JSON value, returns the sum of all numbers in the JSON, excluding any object that has a value
+// with the given name.
 fn get_sum_of_numbers(value: &Value, exclude_name: Option<&str>) -> i64 {
     match value {
         Value::Number(number) => number.as_i64().unwrap(),
