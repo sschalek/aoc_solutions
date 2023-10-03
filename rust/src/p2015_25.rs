@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 25: "Let It Snow"
+// https://adventofcode.com/2015/day/25
+
 // Get the row and column to find the code for from the given string.
 fn parse_coordinate(coordinate_string: &str) -> (i32, i32) {
     let integers = coordinate_string

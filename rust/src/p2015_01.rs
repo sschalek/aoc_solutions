@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 1: "Not Quite Lisp"
+// https://adventofcode.com/2015/day/1
+
 // Started with this solution, but the fold/reduce-based solution below seems to express
 // things more clearly.
 // fn get_floor_old(instruction_str:&str) -> Result<i64, ()> {

@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 7: "Some Assembly Required"
+// https://adventofcode.com/2015/day/7
+
 use phf::phf_map;
 
 // Represents the different operations a node in the circuit can perform.

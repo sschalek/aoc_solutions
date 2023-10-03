@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 12: "JSAbacusFramework.io"
+// https://adventofcode.com/2015/day/12
+
 use serde_json::Value;
 
 fn get_sum_of_numbers(value: &Value, exclude_name: Option<&str>) -> i64 {

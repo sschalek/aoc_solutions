@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 2: "I Was Told There Would Be No Math"
+// https://adventofcode.com/2015/day/2
+
 // Returns an iterator that iterates through the package dimensions specified by the input data as
 // tuples of three integers each, one integer for each dimension.
 fn package_dimensions(input: &str) -> impl Iterator<Item = (i32, i32, i32)> + '_ {

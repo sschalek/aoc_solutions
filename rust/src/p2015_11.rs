@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 11: "Corporate Policy"
+// https://adventofcode.com/2015/day/11
+
 // This struct implements an iterator over valid passwords, given a starting password and a set of invalid characters.
 struct PasswordIterator {
     password: Vec<char>,

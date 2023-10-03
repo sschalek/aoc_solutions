@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 4: "The Ideal Stocking Stuffer"
+// https://adventofcode.com/2015/day/4
+
 use md5::Digest;
 use rayon::prelude::*;
 use std::convert::TryInto;

@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 3: "Perfectly Spherical Houses in a Vacuum"
+// https://adventofcode.com/2015/day/3
+
 use std::collections::hash_map::Entry;
 
 // Given a character from the input instructions, returns a tuple representing a vector indicating
@@ -14,7 +17,7 @@ fn get_movement_vector_from_char(character: char) -> (isize, isize) {
 
 fn get_unique_house_count(instructions_string: &str, actor_count: usize) -> usize {
     // This implementation processes the multiple actors moving around between the houses
-    // in parallel. This is almost certainly not more efficient given the overhead, but
+    // in parallel. This is probably not more efficient given the overhead, but
     // it's interesting to try out the relevant concurrency functionality.
 
     // Represents the house visitation state that will be shared across all actors visiting houses.

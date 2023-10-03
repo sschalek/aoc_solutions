@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 10: "Elves Look, Elves Say"
+// https://adventofcode.com/2015/day/10
+
 // Applies the look-and-say algorithm to the given input buffer and stores the result in the given output buffer.
 // The details of the look-and-say algorithm are documented on the apply_look_and_say function.
 fn apply_look_and_say_to_buffer(input: &[char], output: &mut Vec<char>) {

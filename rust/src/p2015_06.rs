@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 6: "Probably a Fire Hazard"
+// https://adventofcode.com/2015/day/6
+
 // Represents a square grid of lights that can be turned on and off and dimmed/brightened.
 struct LightGrid {
     light_status: Vec<usize>,

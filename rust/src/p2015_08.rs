@@ -1,3 +1,6 @@
+// Advent of Code 2015, Day 8: "Matchsticks"
+// https://adventofcode.com/2015/day/8
+
 fn parse_list_string_literal(list_string_literal: &str) -> String {
     #[derive(Copy, Clone)]
     enum ParserMode {
