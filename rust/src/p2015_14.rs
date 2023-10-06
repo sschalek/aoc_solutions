@@ -170,9 +170,9 @@ fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
     if let Some(log_fn) = log_fn {
         log_fn("Part 1");
         log_fn("----------");
-        log_fn(&format!("Lead reindeer: {:?}", race.get_lead_reindeer()));
+        log_fn(&format!("Lead reindeer: {:#?}", race.get_lead_reindeer()));
         log_fn("-----");
-        log_fn(&format!("{race:?}"));
+        log_fn(&format!("{race:#?}"));
         log_fn("-----");
     }
 
@@ -183,10 +183,10 @@ fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
     if let Some(log_fn) = log_fn {
         log_fn("Part 2");
         log_fn("----------");
-        log_fn(&format!("Lead reindeer: {:?}", race.get_lead_reindeer()));
-        log_fn(&format!("Winning reindeer: {winning_reindeer:?}"));
+        log_fn(&format!("Lead reindeer: {:#?}", race.get_lead_reindeer()));
+        log_fn(&format!("Winning reindeer: {winning_reindeer:#?}"));
         log_fn("-----");
-        log_fn(&format!("{race:?}"));
+        log_fn(&format!("{race:#?}"));
         log_fn("-----");
     }
 

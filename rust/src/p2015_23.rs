@@ -236,7 +236,7 @@ fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
     // If logging is enabled, print the parsed instructions.
     if let Some(log_fn) = log_fn {
         for (i, instruction) in instructions.iter().enumerate() {
-            log_fn(&format!("{i}: {instruction:?}"));
+            log_fn(&format!("{i}: {instruction:#?}"));
         }
     }
 
@@ -247,7 +247,7 @@ fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
 
     // If logging is enabled, print the final state of the machine.
     if let Some(log_fn) = log_fn {
-        log_fn(&format!("Part 1: {machine:?}"));
+        log_fn(&format!("Part 1: {machine:#?}"));
     }
 
     // Part 2: Run the program with register A initialized to 1.
@@ -257,7 +257,7 @@ fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
 
     // If logging is enabled, print the final state of the machine.
     if let Some(log_fn) = log_fn {
-        log_fn(&format!("Part 2: {machine:?}"));
+        log_fn(&format!("Part 2: {machine:#?}"));
     }
 
     (part1_result.to_string(), part2_result.to_string())

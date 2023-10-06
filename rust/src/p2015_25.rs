@@ -51,7 +51,7 @@ fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
     let code = get_code(input_coordinate);
 
     if let Some(log_fn) = log_fn {
-        log_fn(&format!("Code for {input_coordinate:?}: {code}"));
+        log_fn(&format!("Code for {input_coordinate:#?}: {code}"));
     }
 
     (code.to_string(), String::new())

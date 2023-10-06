@@ -29,7 +29,7 @@ mod p2015_14;
 //mod p2015_16;
 //mod p2015_17;
 //mod p2015_18;
-//mod p2015_19;
+mod p2015_19;
 //mod p2015_20;
 //mod p2015_21;
 //mod p2015_22;
@@ -50,6 +50,7 @@ fn open_input_file(year: i32, day: i32) -> (String, std::fs::File) {
     (input_path, input_file)
 }
 
+// Returns the full problem input for the problem from the given year and day.
 fn get_problem_input(year: i32, day: i32) -> String {
     let (input_path, mut input_file) = open_input_file(year, day);
     let mut input_string = String::new();
@@ -61,6 +62,7 @@ fn get_problem_input(year: i32, day: i32) -> String {
 
 type SolveFn = fn(&str, Option<fn(&str)>) -> (String, String);
 
+// Represents a specific solution to an Advent of Code problem.
 #[derive(Clone, Copy)]
 pub struct Solution {
     year: i32,
@@ -69,14 +71,18 @@ pub struct Solution {
 }
 
 impl Solution {
+    // Creates a new Solution for the problem for the given year and day that uses the given solve function.
     pub const fn new(year: i32, day: i32, solve: SolveFn) -> Self {
         Self { year, day, solve }
     }
 }
 
+// A list of all solutions to Advent of Code problems. This list is populated by the #[distributed_slice] attribute
+// on the SOLUTIONS constant below.
 #[distributed_slice]
 pub static SOLUTIONS: [Solution] = [..];
 
+// Represents the result of running a solution on a given problem input.
 struct SolutionRunResult {
     part1_result: String,
     part2_result: String,
@@ -93,6 +99,8 @@ impl SolutionRunResult {
     }
 }
 
+// Generates a map of years to a list of solutions for that year. If a specific year or day is requested, then only
+// solutions for that year or day are included in the map.
 fn generate_solution_set(year: Option<i32>, day: Option<i32>) -> HashMap<i32, Vec<Option<Solution>>> {
     let mut solution_set = HashMap::new();
     for solution in SOLUTIONS {
@@ -114,12 +122,16 @@ fn generate_solution_set(year: Option<i32>, day: Option<i32>) -> HashMap<i32, Ve
     solution_set
 }
 
+// Runs the solutions for the given year and/or day, or for all years and days if no specific year or day were requested.
 fn run_solutions(
     requested_year: Option<i32>,
     requested_day: Option<i32>,
     log_fn: Option<fn(&str)>,
 ) -> HashMap<i32, Vec<Option<SolutionRunResult>>> {
+    // Generate a map of years to a list of solutions for that year.
     let solution_map = generate_solution_set(requested_year, requested_day);
+
+    // Run the solutions for each year.
     let mut result_map = HashMap::new();
     for (year, solutions) in solution_map {
         let mut result_vec = Vec::new();
@@ -139,6 +151,7 @@ fn run_solutions(
     result_map
 }
 
+// Prints out the usage information for this program and immediately exits.
 fn print_usage_and_exit() {
     println!("Usage: {} [<year>] [<day>] [-v]", std::env::args().next().unwrap());
     std::process::exit(1);
@@ -172,10 +185,11 @@ fn main() {
 
         let mut total_duration = std::time::Duration::new(0, 0);
         for (day, result) in results.iter().enumerate() {
+            let display_day = day + 1;
             if let Some(result) = result {
                 println!(
                     "{:>3}  {:>12}  {:>12}  {:>4}.{:03}_{:03}s",
-                    day + 1,
+                    display_day,
                     result.part1_result,
                     result.part2_result,
                     result.duration.as_secs(),
@@ -185,7 +199,10 @@ fn main() {
 
                 total_duration += result.duration;
             } else {
-                println!("{:>3}  {:>12}  {:>12}  {:>4}.{:03}_{:03}s", day, "-", "-", 0, 0, 0);
+                println!(
+                    "{:>3}  {:>12}  {:>12}  {:>4}.{:03}_{:03}s",
+                    display_day, "-", "-", 0, 0, 0
+                );
             }
         }
 
