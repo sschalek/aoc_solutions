@@ -13,7 +13,8 @@ param (
     [int]$Day
 )
 
-$ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
+#$BasePath = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$BasePath = "."
 
 $BaseUrl = "https://adventofcode.com"
 $Headers = @{
@@ -27,7 +28,7 @@ $StartDay = if ($Day) { $Day } else { 1 }
 $EndDay = if ($Day) { $Day } else { 25 }
 
 for ($i = $StartYear; $i -le $EndYear; $i++) {
-    $YearInputsDirectoryPath = "$ScriptPath\inputs\$i"
+    $YearInputsDirectoryPath = "$BasePath\inputs\$i"
     New-Item -ItemType Directory -Force -Path $YearInputsDirectoryPath
 
     for ($j = $StartDay; $j -le $EndDay; $j++) {
