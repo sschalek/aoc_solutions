@@ -1,6 +1,7 @@
 // Advent of Code 2015, Day 18: "Like a GIF For Your Yard"
 // https://adventofcode.com/2015/day/18
 
+// Represents a grid of lights that can be animated.
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct LightGrid {
     lights: Vec<bool>,
@@ -20,6 +21,7 @@ impl LightGrid {
         grid
     }
 
+    // Fixes the given lights to the given state. Fixed lights never change state during animation.
     pub fn fix_lights(&mut self, fixed_lights: &[((usize, usize), bool)]) {
         self.fixed_lights.append(&mut fixed_lights.to_vec());
         for ((x, y), state) in fixed_lights {
@@ -28,6 +30,7 @@ impl LightGrid {
         }
     }
 
+    // Steps the animation forward by the given number of steps.
     pub fn step_animation(&mut self, count: usize) {
         for _ in 0..count {
             let mut next_state = vec![false; self.lights.len()];
@@ -55,10 +58,12 @@ impl LightGrid {
         }
     }
 
+    // Returns the index of the light at the given coordinates.
     fn get_light_index(&self, x: usize, y: usize) -> usize {
         x + y * self.width
     }
 
+    // Returns the number of neighbours of the light at the given coordinates that are on.
     fn get_neighbour_on_count(&self, x: usize, y: usize) -> usize {
         let mut count = 0;
         for i in -1..=1 {
@@ -82,6 +87,7 @@ impl LightGrid {
     }
 }
 
+// Enable formatting of LightGrid instances for text output.
 impl std::fmt::Display for LightGrid {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for y in 0..self.width {
@@ -95,6 +101,7 @@ impl std::fmt::Display for LightGrid {
     }
 }
 
+// Parses the given input string into a LightGrid instance.
 fn parse_light_grid(input: &str) -> LightGrid {
     let mut lights = Vec::new();
     let mut width = None;
@@ -115,6 +122,8 @@ fn parse_light_grid(input: &str) -> LightGrid {
     LightGrid::new(&lights, width.unwrap(), &[])
 }
 
+// Runs the given LightGrid animation for the given number of steps. If a log function is provided, then the state of
+// the grid is logged after each step for the first 10 steps, and then again after the final step.
 fn run_animation(grid: &mut LightGrid, count: usize, log_fn: Option<fn(&str)>) {
     let first_part = count.min(10);
     for i in 0..first_part {

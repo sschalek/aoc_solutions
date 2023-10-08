@@ -1,6 +1,7 @@
 // Advent of Code 2015, Day 21: "RPG Simulator 20XX"
 // https://adventofcode.com/2015/day/21
 
+// Represents an item that can be equipped by the player.
 #[derive(Debug, Clone)]
 struct Item {
     #[allow(dead_code)]
@@ -11,6 +12,7 @@ struct Item {
 }
 
 impl Item {
+    // Creates a new instance with the given properties.
     pub const fn new(name: &'static str, cost: u32, damage: u32, armor: u32) -> Item {
         Item {
             name: std::borrow::Cow::Borrowed(name),
@@ -21,6 +23,7 @@ impl Item {
     }
 }
 
+// The set of weapons that can be purchased by the player.
 const WEAPONS: [Item; 5] = [
     Item::new("Dagger", 8, 4, 0),
     Item::new("Shortsword", 10, 5, 0),
@@ -29,6 +32,7 @@ const WEAPONS: [Item; 5] = [
     Item::new("Greataxe", 74, 8, 0),
 ];
 
+// The set of armors that can be purchased by the player.
 const ARMOR: [Item; 5] = [
     Item::new("Leather", 13, 0, 1),
     Item::new("Chainmail", 31, 0, 2),
@@ -37,6 +41,7 @@ const ARMOR: [Item; 5] = [
     Item::new("Platemail", 102, 0, 5),
 ];
 
+// The set of rings that can be purchased by the player.
 const RINGS: [Item; 6] = [
     Item::new("Damage +1", 25, 1, 0),
     Item::new("Damage +2", 50, 2, 0),
@@ -46,6 +51,7 @@ const RINGS: [Item; 6] = [
     Item::new("Defense +3", 80, 0, 3),
 ];
 
+// Represents a specific loadout of items equipped by the player.
 #[derive(Debug)]
 struct Loadout {
     weapon: Item,
@@ -55,6 +61,7 @@ struct Loadout {
 }
 
 impl Loadout {
+    // Creates a new instance with the given items equipped.
     pub fn new(weapon: Item, armor: Option<Item>, ring_left: Option<Item>, ring_right: Option<Item>) -> Loadout {
         Loadout {
             weapon,
@@ -64,18 +71,21 @@ impl Loadout {
         }
     }
 
+    // Returns the total cost of the items in the loadout.
     pub fn cost(&self) -> u32 {
         let mut cost = 0;
         self.for_each_item(|item| cost += item.cost);
         cost
     }
 
+    // Returns the total damage dealt by the items in the loadout.
     pub fn damage(&self) -> u32 {
         let mut damage = 0;
         self.for_each_item(|item| damage += item.damage);
         damage
     }
 
+    // Returns the total armor provided by the items in the loadout.
     pub fn armor(&self) -> u32 {
         let mut armor = 0;
         self.for_each_item(|item| armor += item.armor);
@@ -100,6 +110,7 @@ impl Loadout {
     }
 }
 
+// An iterator that generates all possible loadouts of items that can be equipped by the player.
 struct LoadoutGenerator {
     weapon_index: usize,
     armor_index: usize,
@@ -108,6 +119,7 @@ struct LoadoutGenerator {
 }
 
 impl LoadoutGenerator {
+    // Creates a new instance.
     pub fn new() -> LoadoutGenerator {
         LoadoutGenerator {
             weapon_index: 0,
@@ -118,15 +130,18 @@ impl LoadoutGenerator {
     }
 }
 
+// Implement the Iterator trait for the LoadoutGenerator struct, so that it can be used as an iterator.
 impl Iterator for LoadoutGenerator {
     type Item = Loadout;
 
+    // Returns the next loadout in the sequence.
     fn next(&mut self) -> Option<Self::Item> {
+        // If the weapon index is out of bounds, then there are no more loadouts to generate.
         if self.weapon_index >= WEAPONS.len() {
             return None;
         }
 
-        // Generate the loadout.
+        // Generate the item loadout based on the current item indices.
         let weapon = WEAPONS[self.weapon_index].clone();
         let armor = if self.armor_index == ARMOR.len() {
             None
@@ -144,8 +159,13 @@ impl Iterator for LoadoutGenerator {
             Some(RINGS[self.ring_right_index].clone())
         };
 
+        // Update the item indices for the next iteration. The item indices are updated in order,
+        // and each time an index is incremented past the end of its range, it is reset to 0 and
+        // the next index is incremented.
         self.ring_right_index += 1;
         if self.ring_right_index > RINGS.len() {
+            // If the right ring index is out of bounds, then reset it. The right ring index is
+            // reset to the left ring index so that duplicate ring pairs are not generated.
             self.ring_right_index = self.ring_left_index;
             self.ring_left_index += 1;
         }
@@ -164,6 +184,7 @@ impl Iterator for LoadoutGenerator {
     }
 }
 
+// Defines the properties of a combatant.
 #[derive(Debug)]
 struct CombatantDescription {
     damage: u32,
@@ -172,6 +193,7 @@ struct CombatantDescription {
 }
 
 impl CombatantDescription {
+    // Creates a new instance with the given properties.
     pub fn new(damage: u32, armor: u32, starting_hit_points: u32) -> CombatantDescription {
         CombatantDescription {
             damage,
@@ -181,17 +203,21 @@ impl CombatantDescription {
     }
 }
 
+// Defines the possible combatant types.
 #[derive(Debug, PartialEq)]
-enum CombatWinner {
+enum CombatantType {
     Player,
     Boss,
 }
 
+// Simulates a combat between the given combatants and returns the type of the winning combatant.
 fn simulate_combat(
     player_description: &CombatantDescription,
     boss_description: &CombatantDescription,
     log_fn: Option<fn(&str)>,
-) -> CombatWinner {
+) -> CombatantType {
+    // Simulates an attack by the given attacker against the given defender.
+    // Returns true if the defender has been defeated.
     fn simulate_attack(
         attacker_name: &str,
         attacker_description: &CombatantDescription,
@@ -207,6 +233,7 @@ fn simulate_combat(
         );
         *defender_hit_points = defender_hit_points.saturating_sub(attacker_damage);
 
+        // Log the attack if a log function was provided.
         if let Some(log_fn) = log_fn {
             log_fn(&format!(
                 "{attacker_name} hits for {attacker_damage}. {defender_name} now has {defender_hit_points} hit points."
@@ -224,15 +251,18 @@ fn simulate_combat(
         }
     }
 
+    // Log the combatants if a log function was provided.
     if let Some(log_fn) = log_fn {
         log_fn("--------------------------------------------------");
         log_fn(&format!("Player: {player_description:?}"));
         log_fn(&format!("Boss: {boss_description:?}"));
     }
 
+    // Simulate the combat until one of the combatants has been defeated.
     let mut player_hit_points = player_description.starting_hit_points;
     let mut boss_hit_points = boss_description.starting_hit_points;
     loop {
+        // Simulate an attack by the player against the boss. The player always attacks first.
         if simulate_attack(
             "Player",
             player_description,
@@ -241,9 +271,10 @@ fn simulate_combat(
             &mut boss_hit_points,
             log_fn,
         ) {
-            return CombatWinner::Player;
+            return CombatantType::Player;
         }
 
+        // Simulate an attack by the boss against the player.
         if simulate_attack(
             "Boss",
             boss_description,
@@ -252,11 +283,12 @@ fn simulate_combat(
             &mut player_hit_points,
             log_fn,
         ) {
-            return CombatWinner::Boss;
+            return CombatantType::Boss;
         }
     }
 }
 
+// Returns the first integer value successfully parsed from the given string.
 fn get_integer_from_line(input: &str) -> Result<u32, ()> {
     for word in input.split_whitespace() {
         if let Ok(value) = word.parse::<u32>() {
@@ -266,6 +298,7 @@ fn get_integer_from_line(input: &str) -> Result<u32, ()> {
     Err(())
 }
 
+// Parses the given input string into a CombatantDescription for the boss.
 fn load_boss_description(input: &str) -> CombatantDescription {
     let mut line_iter = input.lines();
     let boss_hit_points = get_integer_from_line(line_iter.next().unwrap()).unwrap();
@@ -277,6 +310,7 @@ fn load_boss_description(input: &str) -> CombatantDescription {
 fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
     let boss_description = load_boss_description(input);
 
+    // Generate all possible loadouts of items that can be equipped by the player.
     let loadout_generator = LoadoutGenerator::new();
     let combat_results = loadout_generator.map(|loadout| {
         let player_description = CombatantDescription::new(loadout.damage(), loadout.armor(), 100);
@@ -289,8 +323,8 @@ fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
     let (part1_result, part2_result) = combat_results.fold(
         (u32::MAX, u32::MIN),
         |(min_cost, max_cost), (loadout, winner)| match winner {
-            CombatWinner::Player => (std::cmp::min(min_cost, loadout.cost()), max_cost),
-            CombatWinner::Boss => (min_cost, std::cmp::max(max_cost, loadout.cost())),
+            CombatantType::Player => (std::cmp::min(min_cost, loadout.cost()), max_cost),
+            CombatantType::Boss => (min_cost, std::cmp::max(max_cost, loadout.cost())),
         },
     );
     (part1_result.to_string(), part2_result.to_string())

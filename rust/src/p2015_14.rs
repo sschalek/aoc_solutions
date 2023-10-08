@@ -177,7 +177,7 @@ fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
     }
 
     // Part 2: Find the number of points the winning reindeer has after 2503 seconds.
-    let winning_reindeer = &race.get_winning_reindeer();
+    let winning_reindeer = race.get_winning_reindeer();
     let part2_result = winning_reindeer.1;
 
     if let Some(log_fn) = log_fn {
