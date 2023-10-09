@@ -1,7 +1,7 @@
 // Advent of Code 2015, Day 9: "All in a Single Night"
 // https://adventofcode.com/2015/day/9
 
-use std::{collections::HashMap, hash::Hash};
+use std::collections::HashMap;
 
 struct CityGraph {
     cities: Vec<String>,
@@ -9,7 +9,7 @@ struct CityGraph {
 }
 
 impl CityGraph {
-    fn new(distance_list: Vec<(String, String, u32)>) -> Self {
+    fn new(distance_list: &[(String, String, u32)]) -> Self {
         fn ensure_city_id(cities: &mut Vec<String>, city_name: &str) -> usize {
             if let Some(city_id) = cities.iter().position(|c| c == city_name) {
                 city_id
@@ -24,7 +24,7 @@ impl CityGraph {
             distance_matrix: Vec::new(),
         };
 
-        for (city_name1, city_name2, distance) in &distance_list {
+        for (city_name1, city_name2, distance) in distance_list {
             let city_id1 = ensure_city_id(&mut graph.cities, city_name1);
             let city_id2 = ensure_city_id(&mut graph.cities, city_name2);
             let index = graph.get_distance_matrix_index(city_id1, city_id2);
@@ -32,10 +32,6 @@ impl CityGraph {
             graph.distance_matrix[index] = Some(*distance);
         }
         graph
-    }
-
-    fn get_city_id(&self, city_name: &str) -> Option<usize> {
-        self.cities.iter().position(|c| c == city_name)
     }
 
     fn get_distance_by_id(&self, city_id1: usize, city_id2: usize) -> Option<u32> {
@@ -162,7 +158,7 @@ fn parse_city_graph(input: &str) -> CityGraph {
             distance,
         ));
     }
-    CityGraph::new(distance_list)
+    CityGraph::new(&distance_list)
 }
 
 fn solve(input: &str, _log_fn: Option<fn(&str)>) -> (String, String) {
