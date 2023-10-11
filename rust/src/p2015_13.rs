@@ -141,7 +141,10 @@ fn parse_dinner_description(input: &str) -> DinnerDescription {
 
 fn solve(input: &str, log_fn: Option<fn(&str)>) -> (String, String) {
     let mut dinner_description = parse_dinner_description(input);
-    println!("Dinner description: {:?}", dinner_description.guests);
+    if let Some(log_fn) = log_fn {
+        log_fn(&format!("{dinner_description}"));
+        log_fn("-----");
+    }
 
     // Part 1: Find the optimal seating arrangement for the given happiness rules.
     if let Some(log_fn) = log_fn {

@@ -96,20 +96,10 @@ impl<'a> PathSolver<'a> {
         find_shortest: bool,
     ) -> Option<u32> {
         if through_city_ids.is_empty() {
-            // println!(
-            //     "through_city_ids: {:?}, target_city_id: {}, shortest_distance: {:?}",
-            //     through_city_ids, target_city_id, 0
-            // );
             return Some(0);
         }
 
         if through_city_ids.len() == 1 {
-            // println!(
-            //     "through_city_ids: {:?}, target_city_id: {}, shortest_distance: {:?}",
-            //     through_city_ids,
-            //     target_city_id,
-            //     self.get_city_distance(through_city_ids[0], target_city_id)
-            // );
             return self.get_city_distance(through_city_ids[0], target_city_id);
         }
 
@@ -128,10 +118,6 @@ impl<'a> PathSolver<'a> {
                 }
             }
         }
-        // println!(
-        //     "through_city_ids: {:?}, target_city_id: {}, shortest_distance: {:?}",
-        //     through_city_ids, target_city_id, shortest_distance
-        // );
         shortest_distance
     }
 
@@ -163,7 +149,6 @@ fn parse_city_graph(input: &str) -> CityGraph {
 
 fn solve(input: &str, _log_fn: Option<fn(&str)>) -> (String, String) {
     let graph = parse_city_graph(input);
-    // println!("graph: {:?}", graph.cities);
 
     // Part 1: Find the shortest Hamiltonian path through the given cities.
     let mut shortest_path_solver = PathSolver::new(&graph);
