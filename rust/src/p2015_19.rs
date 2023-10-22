@@ -146,7 +146,7 @@ impl MoleculeMachine {
                     search_queue.len(),
                     usize::MAX - score
                 );
-                println!("Current molecule: {:#?}", current_molecule);
+                println!("Current molecule: {current_molecule:#?}");
             }
 
             let next_distance = current_distance + 1;

@@ -9,7 +9,7 @@ fn get_fill_combinations(container_sizes: &[u32], target_volume: u32, log_fn: Op
         target_volume: u32,
         total_fill_combinations: &mut HashMap<usize, u32>,
         combination_count_cache: &mut HashMap<(Vec<u32>, u32), HashMap<usize, u32>>,
-        log_fn: Option<fn(&str)>,
+        _log_fn: Option<fn(&str)>,
     ) {
         if target_volume == 0 {
             total_fill_combinations.entry(1).and_modify(|c| *c += 1).or_insert(1);
@@ -35,7 +35,8 @@ fn get_fill_combinations(container_sizes: &[u32], target_volume: u32, log_fn: Op
                     remaining_volume,
                     &mut fill_combinations,
                     combination_count_cache,
-                    log_fn,
+                    #[allow(clippy::used_underscore_binding)]
+                    _log_fn,
                 );
 
                 combination_count_cache.insert(

@@ -60,7 +60,9 @@ fn solve(input: &str, _log_fn: Option<fn(&str)>) -> (String, String) {
     // Part 2: Find the Sue that matches the given characteristics, under the condition that the
     // measured characteristics are less than the actual characteristics for "cats" and "trees" and
     // greater than the actual characteristics for "pomeranians" and "goldfish".
+    #[allow(clippy::items_after_statements)]
     const GREATER_THAN_CHARACTERISTICS: [&str; 2] = ["cats", "trees"];
+    #[allow(clippy::items_after_statements)]
     const LESS_THAN_CHARACTERISTICS: [&str; 2] = ["pomeranians", "goldfish"];
 
     let mut matching_sues = sue_desciptions.iter().enumerate().filter(|(_, sue_description)| {
